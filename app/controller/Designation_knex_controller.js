@@ -144,7 +144,7 @@ exports.updateDesignation = (req, res) => {
     .catch((err) => {
       res.status(200).json({
         status: false,
-        message: "Records Failed to Update",
+        message: "Records Failed to Update.!",
         Records: err,
       });
     });
