@@ -2,6 +2,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
+const excel = require("exceljs");
 const secret = require("../config/keys").SECRET;
 //signup
 exports.signup = (req, res) => {
@@ -40,7 +41,6 @@ exports.signup = (req, res) => {
 };
 
 //signin
-//SELECT * FROM mynewuser WHERE email = "${}"
 exports.signin = (req, res) => {
   const { email, password } = req.body;
   req.app.knexConnection
@@ -89,12 +89,40 @@ exports.signin = (req, res) => {
     .catch();
 };
 
+//Get All Users & also creates File
 exports.getAllUser = (req, res) => {
   req.app
     .knexConnection("mynewuser")
     .select()
     .from("mynewuser")
     .then((users) => {
+      //Saving information into Excel File
+
+      //Creating workbook
+      let workbook = new excel.Workbook();
+
+      let worksheet = workbook.addWorksheet("Users"); //Will create worksheet
+
+      //Defining Worksheet Headders
+      worksheet.columns = [
+        { header: "UserName", key: "username", width: 30 },
+        { header: "Email", key: "email", width: 30 },
+        { header: "Password", key: "password", width: 70 },
+      ];
+
+      //Adding array rows
+      worksheet.addRows(users);
+
+      //Writing Into file
+      workbook.xlsx
+        .writeFile("user.xlsx")
+        .then(() => {
+          console.log("File Saved SuccessFully!");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
       res.status(200).json({
         status: true,
         message: "Records Fetched",

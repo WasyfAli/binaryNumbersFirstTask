@@ -8,7 +8,7 @@ const {
 
 router
   .route("/register")
-  .get(isAuthenticated, New_knex_controller.getAllUser)
+  .get(New_knex_controller.getAllUser) //Hitting this route will make xlsx file
   .post(New_knex_controller.signup);
 
 router.route("/signin").post(New_knex_controller.signin);
