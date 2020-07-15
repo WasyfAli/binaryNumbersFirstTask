@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
 const excel = require("exceljs");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 const secret = require("../config/keys").SECRET;
 //signup
 exports.signup = (req, res) => {
@@ -96,10 +98,20 @@ exports.getAllUser = (req, res) => {
     .select()
     .from("mynewuser")
     .then((users) => {
-      //Saving information into Excel File
+      //Saving information into Excel File & creating PDF
 
-      //Creating workbook
-      let workbook = new excel.Workbook();
+      let workbook = new excel.Workbook(); //Creating workbook
+
+      const stringifiedUser = JSON.stringify(users);
+      const doc = new PDFDocument(); //Creating a document
+
+      doc.pipe(fs.createWriteStream("user.pdf"));
+
+      //rendering user information to pdf
+
+      doc.text(stringifiedUser);
+
+      doc.end();
 
       let worksheet = workbook.addWorksheet("Users"); //Will create worksheet
 
