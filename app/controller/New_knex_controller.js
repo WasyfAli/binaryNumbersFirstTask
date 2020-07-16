@@ -3,8 +3,24 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
 const excel = require("exceljs");
-const PDFDocument = require("pdfkit");
+const PdfPrinter = require("pdfmake");
 const fs = require("fs");
+
+var fonts = {
+  Roboto: {
+    normal: "fonts/Roboto-Regular.ttf",
+    bold: "fonts/Roboto-Medium.ttf",
+    italics: "fonts/Roboto-Italic.ttf",
+    bolditalics: "fonts/Roboto-MediumItalic.ttf",
+  },
+};
+var externalDataRetrievedFromServer = [
+  { name: "Bartek", age: 34 },
+  { name: "John", age: 27 },
+  { name: "Elizabeth", age: 30 },
+];
+var printer = new PdfPrinter(fonts);
+
 const secret = require("../config/keys").SECRET;
 //signup
 exports.signup = (req, res) => {
@@ -102,16 +118,65 @@ exports.getAllUser = (req, res) => {
 
       let workbook = new excel.Workbook(); //Creating workbook
 
-      const stringifiedUser = JSON.stringify(users);
-      const doc = new PDFDocument(); //Creating a document
+      //console.log(users);
 
-      doc.pipe(fs.createWriteStream("user.pdf"));
+      const buildTableBody = (data, coloumns) => {
+        var body = [];
+        body.push(coloumns);
+        data.forEach((row) => {
+          var dataRow = [];
 
-      //rendering user information to pdf
+          coloumns.forEach((coloumn) => {
+            dataRow.push(row[coloumn].toString());
+          });
+          body.push(dataRow);
+        });
+        return body;
+      };
 
-      doc.text(stringifiedUser);
+      const table = (data, coloumns) => {
+        return {
+          table: {
+            headerRows: 1,
+            widths: [100, 100, 300],
+            body: buildTableBody(data, coloumns),
+          },
+        };
+      };
+      var docDefinition = {
+        content: [
+          { text: "User data Coming From Mysql DataBase", style: "subheader" },
+          table(users, ["username", "email", "password"]),
+        ],
+        styles: {
+          header: {
+            fontSize: 18,
+            bold: true,
+            margin: [0, 0, 0, 10],
+          },
+          subheader: {
+            fontSize: 16,
+            bold: true,
+            margin: [0, 10, 0, 5],
+          },
+          tableExample: {
+            margin: [0, 5, 0, 15],
+          },
+          tableHeader: {
+            bold: true,
+            fontSize: 13,
+            color: "black",
+          },
+        },
+        defaultStyle: {
+          alignment: "center",
+        },
+      };
 
-      doc.end();
+      var pdfDoc = printer.createPdfKitDocument(docDefinition);
+      pdfDoc.pipe(fs.createWriteStream("user.pdf"));
+      pdfDoc.end();
+      //PDF ENDS
 
       let worksheet = workbook.addWorksheet("Users"); //Will create worksheet
 
@@ -166,3 +231,55 @@ exports.isAuthenticated = (req, res, next) => {
   }
   next();
 };
+
+// const buildTableBody = (data, coloumns) => {
+//   var body = [];
+//   body.push(coloumns);
+//   data.forEach((row) => {
+//     var dataRow = [];
+
+//     coloumns.forEach((coloumn) => {
+//       dataRow.push(row[coloumn].toString());
+//     });
+//     body.push(dataRow);
+//   });
+//   return body;
+// };
+
+// const table = (data, coloumns) => {
+//   return {
+//     table: {
+//       headerRows: 1,
+//       body: buildTableBody(data, coloumns),
+//     },
+//   };
+// };
+// var myTablelayouts = {
+//   content: [
+//     { text: "User data Coming From Mysql DataBase", style: "subheader" },
+//     table(users, ["username", "email", "password"]),
+//   ],
+//   styles: {
+//     header: {
+//       fontSize: 18,
+//       bold: true,
+//       margin: [0, 0, 0, 10],
+//     },
+//     subheader: {
+//       fontSize: 16,
+//       bold: true,
+//       margin: [0, 10, 0, 5],
+//     },
+//     tableExample: {
+//       margin: [0, 5, 0, 15],
+//     },
+//     tableHeader: {
+//       bold: true,
+//       fontSize: 13,
+//       color: "black",
+//     },
+//   },
+//   defaultStyle: {
+//     alignment: "center",
+//   },
+// };
