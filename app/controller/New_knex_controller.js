@@ -14,11 +14,7 @@ var fonts = {
     bolditalics: "fonts/Roboto-MediumItalic.ttf",
   },
 };
-var externalDataRetrievedFromServer = [
-  { name: "Bartek", age: 34 },
-  { name: "John", age: 27 },
-  { name: "Elizabeth", age: 30 },
-];
+
 var printer = new PdfPrinter(fonts);
 
 const secret = require("../config/keys").SECRET;
@@ -231,55 +227,3 @@ exports.isAuthenticated = (req, res, next) => {
   }
   next();
 };
-
-// const buildTableBody = (data, coloumns) => {
-//   var body = [];
-//   body.push(coloumns);
-//   data.forEach((row) => {
-//     var dataRow = [];
-
-//     coloumns.forEach((coloumn) => {
-//       dataRow.push(row[coloumn].toString());
-//     });
-//     body.push(dataRow);
-//   });
-//   return body;
-// };
-
-// const table = (data, coloumns) => {
-//   return {
-//     table: {
-//       headerRows: 1,
-//       body: buildTableBody(data, coloumns),
-//     },
-//   };
-// };
-// var myTablelayouts = {
-//   content: [
-//     { text: "User data Coming From Mysql DataBase", style: "subheader" },
-//     table(users, ["username", "email", "password"]),
-//   ],
-//   styles: {
-//     header: {
-//       fontSize: 18,
-//       bold: true,
-//       margin: [0, 0, 0, 10],
-//     },
-//     subheader: {
-//       fontSize: 16,
-//       bold: true,
-//       margin: [0, 10, 0, 5],
-//     },
-//     tableExample: {
-//       margin: [0, 5, 0, 15],
-//     },
-//     tableHeader: {
-//       bold: true,
-//       fontSize: 13,
-//       color: "black",
-//     },
-//   },
-//   defaultStyle: {
-//     alignment: "center",
-//   },
-// };
